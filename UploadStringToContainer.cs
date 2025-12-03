@@ -2,7 +2,6 @@ using Azure.Data.AppConfiguration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using FromBodyAttribute = Microsoft.Azure.Functions.Worker.Http.FromBodyAttribute;
 
@@ -14,7 +13,7 @@ public class UploadStringToContainer
 
     private readonly ILogger<UploadStringToContainer> _logger;
 
-    public UploadStringToContainer(IConfiguration configuration, ConfigurationClient client, ILogger<UploadStringToContainer> logger)
+    public UploadStringToContainer(ConfigurationClient client, ILogger<UploadStringToContainer> logger)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

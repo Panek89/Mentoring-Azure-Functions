@@ -2,9 +2,10 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 
-namespace Mantoring.Function;
+namespace Mentoring.Function;
 
 public class HttpTriggerMentoring
 {
@@ -15,8 +16,8 @@ public class HttpTriggerMentoring
         _logger = logger;
     }
 
-    [Function("HttpTriggerMentoring")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+    [Function(nameof(HttpTriggerMentoring))]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "generate-text")] HttpRequest req, [DurableClient] DurableTaskClient client)
     {
         var random = new Random();
         var randomString = new StringBuilder();
@@ -30,6 +31,13 @@ public class HttpTriggerMentoring
         }
 
         _logger.LogInformation("C# HTTP trigger function processed a request.");
+
+        string? instanceId = req.Query["instanceId"];
+        if (!string.IsNullOrEmpty(instanceId))
+        {
+            await client.RaiseEventAsync(instanceId, nameof(HttpTriggerMentoring), "finish");
+        }
+
         return new OkObjectResult($"{randomString}");
     }
 }
